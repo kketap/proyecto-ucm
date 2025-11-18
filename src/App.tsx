@@ -470,8 +470,22 @@ export default function App() {
       ===================================================== */}
       <section
         id="inicio"
-        className="min-h-screen bg-cover bg-center bg-fixed relative flex items-center justify-center overflow-hidden"
-        style={{ backgroundImage: "url('/images/atencion-medica.avif')" }}
+        className="
+    min-h-screen 
+    bg-cover 
+    bg-center 
+    sm:bg-fixed 
+    bg-no-repeat 
+    relative 
+    flex 
+    items-center 
+    justify-center 
+    overflow-hidden
+  "
+        style={{
+          backgroundImage: "url('/images/atencion-medica.avif')",
+          backgroundPosition: "center top",
+        }}
       >
         {/* Overlay mejorado */}
         <div className="absolute inset-0 bg-gradient-to-br from-ucmBlue/80 via-ucmBlue/60 to-transparent" />
