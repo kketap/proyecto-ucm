@@ -803,17 +803,17 @@ export default function App() {
             >
               <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
                 <div className="text-3xl mb-4">🌎</div>
-                <h4 className="font-bold text-lg mb-2">Presencia Internacional</h4>
+                <h4 className="font-bold text-lg mb-2">Cobertura Internacional</h4>
                 <p className="text-white/80 text-sm sm:text-base">
-                  Atención en más de 15 países a través de nuestra red aliada.
+                  Atención en más de 15 países de Latinoamérica a través de red SIEM.
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
                 <div className="text-3xl mb-4">📍</div>
-                <h4 className="font-bold text-lg mb-2">Cobertura Regional</h4>
+                <h4 className="font-bold text-lg mb-2">Cobertura Nacional </h4>
                 <p className="text-white/80 text-sm sm:text-base">
-                  Disponibilidad 24/7 en la Región Metropolitana y zonas aledañas.
+                  Disponible 24/7 en la región metropolitana y v región.
                 </p>
               </div>
 
