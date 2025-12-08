@@ -1,6 +1,21 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
+import {
+  Ambulance,
+  AlertTriangle,
+  Home,
+  Monitor,
+  PhoneCall,
+  Medal,
+  Stethoscope,
+  UsersRound,
+  Globe,
+  MapPin,
+  RefreshCw
+} from "lucide-react";
+
+
 /* ===========================
    TIPOS MEJORADOS
 =========================== */
@@ -14,12 +29,12 @@ interface ServicioItem {
   title: string;
   desc: string;
   img: string;
-  icon: string;
+  icon: React.ReactNode;
 }
 
 interface BenefitItem {
   title: string;
-  icon: string;
+  icon: React.ReactNode;
   desc?: string;
 }
 
@@ -49,33 +64,34 @@ const SERVICIOS: ServicioItem[] = [
     title: "Unidad Coronaria Móvil",
     desc: "Ambulancias equipadas con tecnología avanzada para soporte crítico con monitoreo cardíaco continuo.",
     img: "/images/ambulancia1.jpeg",
-    icon: "🚑",
+    icon: <Ambulance className="w-8 h-8 text-ucmOrange" />,
   },
   {
     title: "Emergencias 24/7",
     desc: "Equipo profesional capacitado para atención inmediata las 24 horas del día, los 365 días del año.",
     img: "/images/paramedico1.jpeg",
-    icon: "⚠️",
+    icon: <AlertTriangle className="w-8 h-8 text-ucmOrange" />,
   },
   {
     title: "Atención Domiciliaria",
     desc: "Profesionales de salud llegan directamente a tu hogar con equipamiento completo de emergencias.",
     img: "/images/familia1.jpeg",
-    icon: "🏥",
+    icon: <Home className="w-8 h-8 text-ucmOrange" />,
   },
   {
     title: "Telemedicina",
     desc: "Video consulta médica integral con capacidad de entregar receta de medicamentos y órdenes médicas.",
     img: "/images/telemedicina.png",
-    icon: "💻"
+    icon: <Monitor className="w-8 h-8 text-ucmOrange" />,
   },
   {
-    title: "Atención de Urgencias y Orientación Médica Telefónica",
-    desc: "Atención de emergencias, urgencias y orientación médica telefónica para evaluar síntomas y entregar indicaciones inmediatas.",
+    title: "Urgencias y Orientación Médica Telefónica",
+    desc: "Atención de urgencias y orientación médica telefónica para evaluar síntomas y entregar indicaciones inmediatas.",
     img: "/images/urgencias.jpg",
-    icon: "📞",
+    icon: <PhoneCall className="w-8 h-8 text-ucmOrange" />,
   },
 ];
+
 
 const FLEET_IMAGES = [
   {
@@ -89,20 +105,21 @@ const FLEET_IMAGES = [
 const BENEFICIOS: BenefitItem[] = [
   {
     title: "Más de 15 años de experiencia",
-    icon: "🏅",
-    desc: "Líderes en atención médica de urgencia"
+    icon: <Medal className="w-8 h-8 text-ucmBlue" />,
+    desc: "Líderes en atención médica de urgencia",
   },
   {
     title: "Profesionales certificados",
-    icon: "🩺",
-    desc: "Médicos y paramédicos especializados"
+    icon: <Stethoscope className="w-8 h-8 text-ucmBlue" />,
+    desc: "Médicos y paramédicos especializados",
   },
   {
     title: "Miles de familias atendidas",
-    icon: "👨‍👩‍👧‍👦",
-    desc: "Más de 5,000 emergencias atendidas"
+    icon: <UsersRound className="w-8 h-8 text-ucmBlue" />,
+    desc: "Más de 5,000 emergencias atendidas",
   },
 ];
+
 
 const TESTIMONIOS: TestimonioItem[] = [
   {
@@ -299,8 +316,15 @@ const WhatsAppButton = () => (
     aria-label="Contactar por WhatsApp para emergencias médicas"
   >
     <div className="relative">
-      <div className="w-14 sm:w-16 h-14 sm:h-16 bg-green-500 rounded-full shadow-2xl flex items-center justify-center text-xl sm:text-2xl text-white hover:bg-green-600 transition-colors">
-        💬
+      <div className="w-14 sm:w-16 h-14 sm:h-16 bg-green-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-green-600 transition-colors">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 32 32"
+          fill="white"
+          className="w-7 h-7 sm:w-8 sm:h-8"
+        >
+          <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
+        </svg>
       </div>
 
       {/* Tooltip */}
@@ -540,7 +564,16 @@ export default function App() {
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp para emergencias médicas"
             >
-              <span className="text-xl transition-transform group-hover:scale-110">💬</span>
+              <span className="transition-transform group-hover:scale-110 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 32 32"
+                  fill="white"
+                  className="w-6 h-6"
+                >
+                  <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
+                </svg>
+              </span>
               Emergencia - WhatsApp
             </motion.a>
 
@@ -631,7 +664,7 @@ export default function App() {
                     whileHover={{ y: -5 }}
                     className="text-center p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <div className="text-4xl mb-4">{beneficio.icon}</div>
+                    <div className="flex justify-center text-4xl mb-4">{beneficio.icon}</div>
                     <h4 className="font-bold text-ucmBlue text-lg mb-2">{beneficio.title}</h4>
                     <p className="text-gray-600 text-sm">{beneficio.desc}</p>
                   </motion.div>
@@ -682,11 +715,7 @@ export default function App() {
                 key={servicio.title}
                 data={servicio}
                 index={index}
-                className={
-                  index === SERVICIOS.length - 1 && SERVICIOS.length % 2 !== 0
-                    ? "md:col-span-2 xl:col-span-1"
-                    : ""
-                }
+                className="max-w-sm mx-auto"
               />
             ))}
           </motion.div>
@@ -721,13 +750,20 @@ export default function App() {
             </motion.p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 place-items-center max-w-4xl mx-auto">
+          <div className="
+  grid 
+  grid-cols-[repeat(auto-fit,minmax(260px,1fr))] 
+  gap-6 
+  justify-items-center 
+  max-w-6xl 
+  mx-auto
+">
             {FLEET_IMAGES.map((item, index) => (
               <motion.div
                 key={item.src}
                 {...fadeInUpDelayed(index * 0.1)}
                 whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 w-full max-w-md"
+                className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 w-full max-w-[320px]"
               >
                 <div className="aspect-square overflow-hidden">
                   <motion.img
@@ -746,7 +782,9 @@ export default function App() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <h4 className="text-white font-bold text-base sm:text-lg text-center">{item.title}</h4>
+                  <h4 className="text-white font-bold text-base sm:text-lg text-center">
+                    {item.title}
+                  </h4>
                 </div>
               </motion.div>
             ))}
@@ -802,25 +840,31 @@ export default function App() {
               className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 text-left max-w-4xl mx-auto"
             >
               <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
-                <div className="text-3xl mb-4">🌎</div>
-                <h4 className="font-bold text-lg mb-2">Cobertura Internacional</h4>
-                <p className="text-white/80 text-sm sm:text-base">
+                <div className="flex justify-center mb-4">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <h4 className="font-bold text-lg mb-2 text-center">Cobertura Internacional</h4>
+                <p className="text-white/80 text-sm sm:text-base text-center">
                   Atención en más de 15 países de Latinoamérica a través de red SIEM.
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur rounded-2xl p-6">
-                <div className="text-3xl mb-4">📍</div>
-                <h4 className="font-bold text-lg mb-2">Cobertura Nacional </h4>
-                <p className="text-white/80 text-sm sm:text-base">
+                <div className="flex justify-center mb-4">
+                  <MapPin className="w-10 h-10 text-white" />
+                </div>
+                <h4 className="font-bold text-lg mb-2 text-center">Cobertura Nacional</h4>
+                <p className="text-white/80 text-sm sm:text-base text-center">
                   Disponible 24/7 en la región metropolitana y v región.
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur rounded-2xl p-6 md:col-span-2 lg:col-span-1">
-                <div className="text-3xl mb-4">🔄</div>
-                <h4 className="font-bold text-lg mb-2">Disponibilidad 24/7</h4>
-                <p className="text-white/80 text-sm sm:text-base">
+                <div className="flex justify-center mb-4">
+                  <RefreshCw className="w-10 h-10 text-white" />
+                </div>
+                <h4 className="font-bold text-lg mb-2 text-center">Disponibilidad 24/7</h4>
+                <p className="text-white/80 text-sm sm:text-base text-center">
                   Servicio continuo todos los días del año.
                 </p>
               </div>
@@ -898,7 +942,7 @@ export default function App() {
 
             <motion.div
               {...fadeInUpDelayed(0.4)}
-              className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8 sm:mb-12 max-w-2xl mx-auto"
+              className="grid place-items-center mb-8 sm:mb-12 max-w-2xl mx-auto"
             >
               <a
                 href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
@@ -907,7 +951,17 @@ export default function App() {
                 rel="noopener noreferrer"
                 aria-label="Contactar por WhatsApp para emergencias médicas"
               >
-                <div className="text-3xl mb-3">💬</div>
+                <div className="mb-3 flex justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                    fill="white"
+                    className="w-8 h-8"
+                  >
+                    <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
+                  </svg>
+                </div>
+
                 <div className="font-bold text-lg mb-2">WhatsApp</div>
                 <div className="text-green-100 text-sm">Respuesta inmediata</div>
               </a>
