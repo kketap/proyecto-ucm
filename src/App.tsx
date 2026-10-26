@@ -12,9 +12,10 @@ import {
   UsersRound,
   Globe,
   MapPin,
-  RefreshCw
+  RefreshCw,
+  Check,
+  HeartPulse,
 } from "lucide-react";
-
 
 /* ===========================
    TIPOS MEJORADOS
@@ -92,11 +93,11 @@ const SERVICIOS: ServicioItem[] = [
   },
 ];
 
-
 const FLEET_IMAGES = [
   {
     src: "/images/ambulancia5.jpg",
-    title: "Móvil VIR – Vehículo de Intervención Rápida para Atenciones Programadas"
+    title:
+      "Móvil VIR – Vehículo de Intervención Rápida para Atenciones Programadas",
   },
   { src: "/images/ambulancia3.jpeg", title: "UCM Equipada" },
   { src: "/images/ambulancia4.jpeg", title: "UCM Emergencia" },
@@ -104,7 +105,7 @@ const FLEET_IMAGES = [
 
 const BENEFICIOS: BenefitItem[] = [
   {
-    title: "Más de 15 años de experiencia",
+    title: "Más de 40 años de experiencia",
     icon: <Medal className="w-8 h-8 text-ucmBlue" />,
     desc: "Líderes en atención médica de urgencia",
   },
@@ -120,31 +121,49 @@ const BENEFICIOS: BenefitItem[] = [
   },
 ];
 
+const PLAN_FULL_RESCUE = {
+  nombre: "Full Rescue",
+  precio: "0,59",
+  unidad: "UF",
+  periodo: "mensual",
+  beneficios: [
+    "8 rescates con riesgo vital y/o urgencias médicas",
+    "Atención de salud programada",
+    "Servicios anuales",
+    "Orientación de salud telefónica ilimitada",
+  ],
+} as const;
 
 const TESTIMONIOS: TestimonioItem[] = [
   {
     nombre: "María González",
     rol: "Familiar de paciente",
-    texto: "La atención fue rápida y muy humana. Nos sentimos acompañados en todo momento durante la emergencia.",
-    rating: 5
+    texto:
+      "La atención fue rápida y muy humana. Nos sentimos acompañados en todo momento durante la emergencia.",
+    rating: 5,
   },
   {
     nombre: "Carlos Rivera",
     rol: "Cliente corporativo",
-    texto: "Su servicio ha sido clave en nuestra empresa. Muy confiables y profesionales en cada intervención.",
-    rating: 5
+    texto:
+      "Su servicio ha sido clave en nuestra empresa. Muy confiables y profesionales en cada intervención.",
+    rating: 5,
   },
   {
     nombre: "Ana Pérez",
     rol: "Paciente",
-    texto: "Llegaron en pocos minutos y me atendieron con gran dedicación. Salvaron mi vida literalmente.",
-    rating: 5
+    texto:
+      "Llegaron en pocos minutos y me atendieron con gran dedicación. Salvaron mi vida literalmente.",
+    rating: 5,
   },
 ];
 
 const CONTACT_INFO = {
   whatsapp: "56991880520",
-  telefono: "+56 9 9188 0520",
+  whatsappDisplay: "+56 9 9188 0520",
+
+  emergencia: "223914444",
+  emergenciaDisplay: "22 391 4444",
 } as const;
 
 /* ===========================
@@ -166,9 +185,9 @@ const fadeInUpDelayed = (delay = 0.2) => ({
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.15
-    }
-  }
+      staggerChildren: 0.15,
+    },
+  },
 };
 
 /* ===========================
@@ -226,13 +245,21 @@ const useSmoothScroll = () =>
    COMPONENTES REUTILIZABLES MEJORADOS
 =========================== */
 
-const ServiceCard = ({ data, index, className = "" }: { data: ServicioItem; index: number; className?: string }) => (
+const ServiceCard = ({
+  data,
+  index,
+  className = "",
+}: {
+  data: ServicioItem;
+  index: number;
+  className?: string;
+}) => (
   <motion.div
     {...fadeInUpDelayed(index * 0.15)}
     whileHover={{
       y: -12,
       scale: 1.02,
-      boxShadow: "0 25px 50px rgba(0,0,0,0.15)"
+      boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
     }}
     className={`group bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transition-all duration-500 ${className}`}
   >
@@ -258,7 +285,9 @@ const ServiceCard = ({ data, index, className = "" }: { data: ServicioItem; inde
       <h4 className="font-bold text-xl sm:text-2xl text-ucmBlue mb-4 group-hover:text-ucmOrange transition-colors">
         {data.title}
       </h4>
-      <p className="text-gray-600 leading-relaxed text-base sm:text-lg">{data.desc}</p>
+      <p className="text-gray-600 leading-relaxed text-base sm:text-lg">
+        {data.desc}
+      </p>
 
       <motion.div
         initial={{ width: 0 }}
@@ -270,7 +299,13 @@ const ServiceCard = ({ data, index, className = "" }: { data: ServicioItem; inde
   </motion.div>
 );
 
-const TestimonialCard = ({ testimonio, index }: { testimonio: TestimonioItem; index: number }) => (
+const TestimonialCard = ({
+  testimonio,
+  index,
+}: {
+  testimonio: TestimonioItem;
+  index: number;
+}) => (
   <motion.div
     {...fadeInUpDelayed(index * 0.2)}
     whileHover={{ y: -5 }}
@@ -279,7 +314,9 @@ const TestimonialCard = ({ testimonio, index }: { testimonio: TestimonioItem; in
     {/* Rating Stars */}
     <div className="flex gap-1 mb-4">
       {[...Array(testimonio.rating || 5)].map((_, i) => (
-        <span key={i} className="text-ucmOrange text-lg">★</span>
+        <span key={i} className="text-ucmOrange text-lg">
+          ★
+        </span>
       ))}
     </div>
 
@@ -302,13 +339,13 @@ const WhatsAppButton = () => (
     whileHover={{
       scale: 1.1,
       rotate: 5,
-      transition: { type: "spring", stiffness: 400, damping: 10 }
+      transition: { type: "spring", stiffness: 400, damping: 10 },
     }}
     whileTap={{ scale: 0.95 }}
     transition={{
       type: "spring",
       stiffness: 300,
-      damping: 20
+      damping: 20,
     }}
     className="fixed bottom-6 right-6 z-40 group"
     target="_blank"
@@ -354,17 +391,21 @@ export default function App() {
   const scrollTo = useSmoothScroll();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navClasses = useMemo(() =>
-    scrolled
-      ? "bg-ucmBlue/95 backdrop-blur-md shadow-2xl border-b border-white/10"
-      : "bg-transparent",
-    [scrolled]
+  const navClasses = useMemo(
+    () =>
+      scrolled
+        ? "bg-ucmBlue/95 backdrop-blur-md shadow-2xl border-b border-white/10"
+        : "bg-transparent",
+    [scrolled],
   );
 
-  const handleNavClick = useCallback((id: string) => {
-    setMenuOpen(false);
-    scrollTo(id);
-  }, [scrollTo]);
+  const handleNavClick = useCallback(
+    (id: string) => {
+      setMenuOpen(false);
+      scrollTo(id);
+    },
+    [scrollTo],
+  );
 
   return (
     <div className="font-sans bg-white text-gray-800 scroll-smooth">
@@ -399,8 +440,12 @@ export default function App() {
               />
             </div>
             <div className="text-left">
-              <span className="font-bold text-lg sm:text-xl block leading-tight">UCM</span>
-              <span className="text-white/70 text-xs block">Unidad Coronaria Móvil</span>
+              <span className="font-bold text-lg sm:text-xl block leading-tight">
+                UCM
+              </span>
+              <span className="text-white/70 text-xs block">
+                Unidad Coronaria Móvil
+              </span>
             </div>
           </motion.button>
 
@@ -410,17 +455,22 @@ export default function App() {
               <li key={item.id}>
                 <button
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative px-3 py-2 transition-all duration-300 ${activeSection === item.id
-                    ? "text-ucmOrange font-semibold"
-                    : "text-white/90 hover:text-ucmOrange"
-                    }`}
+                  className={`relative px-3 py-2 transition-all duration-300 ${
+                    activeSection === item.id
+                      ? "text-ucmOrange font-semibold"
+                      : "text-white/90 hover:text-ucmOrange"
+                  }`}
                 >
                   {item.label}
                   {activeSection === item.id && (
                     <motion.div
                       layoutId="navIndicator"
                       className="absolute bottom-0 left-0 w-full h-0.5 bg-ucmOrange rounded-full"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </button>
@@ -440,7 +490,7 @@ export default function App() {
               animate={{
                 rotate: menuOpen ? 45 : 0,
                 y: menuOpen ? 8 : 0,
-                width: menuOpen ? 24 : 20
+                width: menuOpen ? 24 : 20,
               }}
               className="block h-0.5 bg-white transition-all duration-300"
             />
@@ -452,7 +502,7 @@ export default function App() {
               animate={{
                 rotate: menuOpen ? -45 : 0,
                 y: menuOpen ? -8 : 0,
-                width: menuOpen ? 24 : 20
+                width: menuOpen ? 24 : 20,
               }}
               className="block h-0.5 bg-white transition-all duration-300"
             />
@@ -475,10 +525,11 @@ export default function App() {
                     key={item.id}
                     onClick={() => handleNavClick(item.id)}
                     whileHover={{ x: 5 }}
-                    className={`block w-full text-left py-3 px-4 rounded-lg transition-all duration-200 ${activeSection === item.id
-                      ? "bg-white/10 text-ucmOrange font-semibold"
-                      : "text-white hover:bg-white/5 hover:text-ucmOrange"
-                      }`}
+                    className={`block w-full text-left py-3 px-4 rounded-lg transition-all duration-200 ${
+                      activeSection === item.id
+                        ? "bg-white/10 text-ucmOrange font-semibold"
+                        : "text-white hover:bg-white/5 hover:text-ucmOrange"
+                    }`}
                   >
                     {item.label}
                   </motion.button>
@@ -545,7 +596,9 @@ export default function App() {
               className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-12 text-white/90 max-w-3xl mx-auto leading-relaxed"
             >
               Unidad Coronaria Móvil · Emergencias 24/7 ·
-              <span className="block mt-1 sm:mt-2">Profesionales Certificados</span>
+              <span className="block mt-1 sm:mt-2">
+                Profesionales Certificados
+              </span>
             </motion.p>
           </motion.div>
 
@@ -553,35 +606,140 @@ export default function App() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col items-center gap-4"
           >
-            <motion.a
-              href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-ucmOrange text-white font-bold px-6 sm:px-10 py-4 rounded-2xl text-base sm:text-lg shadow-2xl hover:bg-orange-600 transition-all duration-300 flex items-center gap-3 group w-full sm:w-auto justify-center"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Contactar por WhatsApp para emergencias médicas"
-            >
-              <span className="transition-transform group-hover:scale-110 flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 32 32"
-                  fill="white"
-                  className="w-6 h-6"
-                >
-                  <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
-                </svg>
-              </span>
-              Emergencia - WhatsApp
-            </motion.a>
+            {/* CONTACTOS */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch w-full sm:w-auto">
+              {/* WHATSAPP */}
+              <motion.a
+                href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="
+        bg-green-500
+        text-white
+        font-bold
+        px-6
+        sm:px-8
+        py-4
+        rounded-2xl
+        text-base
+        sm:text-lg
+        shadow-2xl
+        hover:bg-green-600
+        transition-all
+        duration-300
+        flex
+        items-center
+        gap-3
+        group
+        w-full
+        sm:w-[250px]
+        justify-center
+      "
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Contactar por WhatsApp al ${CONTACT_INFO.whatsappDisplay}`}
+              >
+                <span className="transition-transform group-hover:scale-110 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                    fill="white"
+                    className="w-6 h-6 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
+                  </svg>
+                </span>
 
+                <span className="flex flex-col items-start leading-tight">
+                  <span>WhatsApp</span>
+
+                  <span className="text-xs sm:text-sm font-medium text-white/90">
+                    {CONTACT_INFO.whatsappDisplay}
+                  </span>
+                </span>
+              </motion.a>
+
+              {/* EMERGENCIA */}
+              <motion.a
+                href={`tel:${CONTACT_INFO.emergencia}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="
+    bg-ucmOrange
+    text-white
+    font-bold
+    px-6
+    sm:px-8
+    py-4
+    rounded-2xl
+    text-base
+    sm:text-lg
+    shadow-2xl
+    hover:bg-orange-600
+    transition-all
+    duration-300
+    flex
+    items-center
+    gap-3
+    group
+    w-full
+    sm:w-[250px]
+    justify-center
+  "
+                aria-label={`Llamar a emergencias al ${CONTACT_INFO.emergenciaDisplay}`}
+              >
+                <PhoneCall
+                  className="
+      w-6
+      h-6
+      shrink-0
+      transition-transform
+      group-hover:scale-110
+    "
+                  aria-hidden="true"
+                />
+
+                <span className="flex flex-col items-start leading-tight">
+                  <span className="whitespace-nowrap">Emergencia - Llamar</span>
+
+                  <span className="text-xs sm:text-sm font-medium text-white/90 mt-1">
+                    {CONTACT_INFO.emergenciaDisplay}
+                  </span>
+                </span>
+              </motion.a>
+            </div>
+
+            {/* CONOCER SERVICIOS */}
             <motion.button
               onClick={() => handleNavClick("servicios")}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white/15 backdrop-blur text-white font-bold px-6 sm:px-10 py-4 rounded-2xl text-base sm:text-lg border border-white/30 hover:bg-white/25 transition-all duration-300 flex items-center gap-2 w-full sm:w-auto justify-center"
+              className="
+      bg-white/15
+      backdrop-blur
+      text-white
+      font-bold
+      px-6
+      sm:px-8
+      py-3
+      rounded-2xl
+      text-base
+      sm:text-lg
+      border
+      border-white/30
+      hover:bg-white/25
+      transition-all
+      duration-300
+      flex
+      items-center
+      gap-2
+      w-full
+      sm:w-[250px]
+      justify-center
+    "
             >
               <span className="text-lg">↓</span>
               Conocer Servicios
@@ -601,7 +759,7 @@ export default function App() {
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
             className="flex flex-col items-center gap-2 text-white/70 cursor-pointer"
             onClick={() => handleNavClick("nosotros")}
@@ -613,7 +771,7 @@ export default function App() {
                 transition={{
                   duration: 2,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
                 className="w-1.5 h-1.5 bg-white/70 rounded-full"
               />
@@ -625,7 +783,10 @@ export default function App() {
       {/* =====================================================
           QUIÉNES SOMOS MEJORADO
       ===================================================== */}
-      <section id="nosotros" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white">
+      <section
+        id="nosotros"
+        className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white"
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0 }}
@@ -641,19 +802,19 @@ export default function App() {
               Quiénes Somos
             </motion.h3>
 
-            <motion.div
-              {...fadeInUpDelayed(0.2)}
-              className="max-w-4xl mx-auto"
-            >
+            <motion.div {...fadeInUpDelayed(0.2)} className="max-w-4xl mx-auto">
               <p className="text-lg sm:text-xl text-gray-700 leading-relaxed mb-6">
-                Con más de <strong className="text-ucmBlue">40 años de experiencia</strong> y la confianza de
-                <strong className="text-ucmBlue"> 600.000 personas</strong>, ofrecemos Servicios de Salud y
-                Rescate Médico con los más altos estándares de calidad.
+                Con más de{" "}
+                <strong className="text-ucmBlue">40 años de experiencia</strong>{" "}
+                y la confianza de
+                <strong className="text-ucmBlue"> 600.000 personas</strong>,
+                ofrecemos Servicios de Salud y Rescate Médico con los más altos
+                estándares de calidad.
               </p>
 
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-8">
-                Nuestro compromiso es brindar atención médica rápida, segura y profesional
-                cuando más lo necesitas.
+                Nuestro compromiso es brindar atención médica rápida, segura y
+                profesional cuando más lo necesitas.
               </p>
 
               <div className="grid md:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12">
@@ -664,12 +825,235 @@ export default function App() {
                     whileHover={{ y: -5 }}
                     className="text-center p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <div className="flex justify-center text-4xl mb-4">{beneficio.icon}</div>
-                    <h4 className="font-bold text-ucmBlue text-lg mb-2">{beneficio.title}</h4>
+                    <div className="flex justify-center text-4xl mb-4">
+                      {beneficio.icon}
+                    </div>
+                    <h4 className="font-bold text-ucmBlue text-lg mb-2">
+                      {beneficio.title}
+                    </h4>
                     <p className="text-gray-600 text-sm">{beneficio.desc}</p>
                   </motion.div>
                 ))}
               </div>
+
+              {/* =====================================================
+    PLAN FULL RESCUE
+===================================================== */}
+              <motion.div {...fadeInUpDelayed(0.4)} className="mt-12 sm:mt-16">
+                {/* Encabezado */}
+                <div className="text-center mb-6 sm:mb-8">
+                  <span className="inline-flex items-center gap-2 bg-ucmOrange/10 text-ucmOrange font-bold text-sm px-4 py-2 rounded-full mb-4">
+                    <HeartPulse className="w-4 h-4" />
+                    Plan destacado
+                  </span>
+
+                  <h4 className="text-2xl sm:text-3xl font-black text-ucmBlue">
+                    Protección médica para ti y tu familia
+                  </h4>
+
+                  <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+                    Conoce nuestro plan Full Rescue y accede a atención y
+                    orientación médica cuando más lo necesites.
+                  </p>
+                </div>
+
+                {/* Tarjeta del plan */}
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.3 }}
+                  className="
+      relative
+      overflow-hidden
+      max-w-4xl
+      mx-auto
+      rounded-3xl
+      bg-ucmBlue
+      text-white
+      shadow-2xl
+    "
+                >
+                  {/* Decoración */}
+                  <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/10 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-24 -left-20 w-64 h-64 bg-ucmOrange/10 rounded-full blur-3xl" />
+
+                  <div className="relative z-10 p-6 sm:p-8 lg:p-10">
+                    {/* Nombre + precio */}
+                    <div
+                      className="
+        flex
+        flex-col
+        md:flex-row
+        md:items-center
+        md:justify-between
+        gap-6
+        pb-8
+        border-b
+        border-white/20
+      "
+                    >
+                      <div className="text-center md:text-left">
+                        <span
+                          className="
+            inline-block
+            text-xs
+            sm:text-sm
+            font-bold
+            uppercase
+            tracking-[0.2em]
+            text-ucmOrange
+            mb-2
+          "
+                        >
+                          Plan de protección médica
+                        </span>
+
+                        <h5
+                          className="
+            text-4xl
+            sm:text-5xl
+            lg:text-6xl
+            font-black
+            uppercase
+            italic
+            tracking-tight
+          "
+                        >
+                          {PLAN_FULL_RESCUE.nombre}
+                        </h5>
+                      </div>
+
+                      <div className="text-center md:text-right shrink-0">
+                        <span className="block text-white/70 text-sm sm:text-base mb-1">
+                          Desde
+                        </span>
+
+                        <div className="flex items-end justify-center md:justify-end gap-2">
+                          <span
+                            className="
+              text-5xl
+              sm:text-6xl
+              lg:text-7xl
+              font-black
+              leading-none
+            "
+                          >
+                            {PLAN_FULL_RESCUE.precio}
+                          </span>
+
+                          <span className="text-2xl sm:text-3xl font-black mb-1">
+                            {PLAN_FULL_RESCUE.unidad}
+                          </span>
+                        </div>
+
+                        <span className="block text-white/80 text-base mt-2">
+                          {PLAN_FULL_RESCUE.periodo}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Beneficios */}
+                    <div className="py-8">
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {PLAN_FULL_RESCUE.beneficios.map((beneficio) => (
+                          <div
+                            key={beneficio}
+                            className="
+                flex
+                items-start
+                gap-3
+                bg-white/10
+                border
+                border-white/10
+                rounded-2xl
+                p-4
+              "
+                          >
+                            <div
+                              className="
+                shrink-0
+                w-7
+                h-7
+                rounded-full
+                bg-ucmOrange
+                flex
+                items-center
+                justify-center
+              "
+                            >
+                              <Check
+                                className="w-4 h-4 text-white"
+                                strokeWidth={3}
+                              />
+                            </div>
+
+                            <p
+                              className="
+                text-left
+                text-sm
+                sm:text-base
+                font-semibold
+                leading-relaxed
+              "
+                            >
+                              {beneficio}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* CTA */}
+                    <div
+                      className="
+        flex
+        flex-col
+        sm:flex-row
+        items-center
+        justify-between
+        gap-5
+        pt-6
+        border-t
+        border-white/20
+      "
+                    >
+                      <div className="text-center sm:text-left">
+                        <p className="font-bold text-lg">
+                          ¿Quieres contratar Full Rescue?
+                        </p>
+
+                        <p className="text-white/70 text-sm mt-1">
+                          Contáctanos para conocer condiciones y contratar tu
+                          plan.
+                        </p>
+                      </div>
+
+                      <motion.button
+                        type="button"
+                        onClick={() => handleNavClick("contacto")}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="
+            w-full
+            sm:w-auto
+            shrink-0
+            bg-ucmOrange
+            hover:bg-orange-600
+            text-white
+            font-bold
+            px-8
+            py-4
+            rounded-2xl
+            shadow-lg
+            transition-colors
+            duration-300
+          "
+                      >
+                        Cotizar plan
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
@@ -698,8 +1082,8 @@ export default function App() {
               {...fadeInUpDelayed(0.2)}
               className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              Servicios médicos de emergencia las 24 horas del día,
-              con equipamiento de última generación y personal altamente calificado.
+              Servicios médicos de emergencia las 24 horas del día, con
+              equipamiento de última generación y personal altamente calificado.
             </motion.p>
           </motion.div>
 
@@ -750,14 +1134,16 @@ export default function App() {
             </motion.p>
           </motion.div>
 
-          <div className="
+          <div
+            className="
   grid 
   grid-cols-[repeat(auto-fit,minmax(260px,1fr))] 
   gap-6 
   justify-items-center 
   max-w-6xl 
   mx-auto
-">
+"
+          >
             {FLEET_IMAGES.map((item, index) => (
               <motion.div
                 key={item.src}
@@ -795,7 +1181,10 @@ export default function App() {
       {/* =====================================================
           COBERTURA MEJORADA
       ===================================================== */}
-      <section id="cobertura" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-ucmBlue to-blue-800 text-white">
+      <section
+        id="cobertura"
+        className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-ucmBlue to-blue-800 text-white"
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0 }}
@@ -843,9 +1232,12 @@ export default function App() {
                 <div className="flex justify-center mb-4">
                   <Globe className="w-10 h-10 text-white" />
                 </div>
-                <h4 className="font-bold text-lg mb-2 text-center">Cobertura Internacional</h4>
+                <h4 className="font-bold text-lg mb-2 text-center">
+                  Cobertura Internacional
+                </h4>
                 <p className="text-white/80 text-sm sm:text-base text-center">
-                  Atención en más de 15 países de Latinoamérica a través de red SIEM.
+                  Atención en más de 15 países de Latinoamérica a través de red
+                  SIEM.
                 </p>
               </div>
 
@@ -853,7 +1245,9 @@ export default function App() {
                 <div className="flex justify-center mb-4">
                   <MapPin className="w-10 h-10 text-white" />
                 </div>
-                <h4 className="font-bold text-lg mb-2 text-center">Cobertura Nacional</h4>
+                <h4 className="font-bold text-lg mb-2 text-center">
+                  Cobertura Nacional
+                </h4>
                 <p className="text-white/80 text-sm sm:text-base text-center">
                   Disponible 24/7 en la región metropolitana y v región.
                 </p>
@@ -863,7 +1257,9 @@ export default function App() {
                 <div className="flex justify-center mb-4">
                   <RefreshCw className="w-10 h-10 text-white" />
                 </div>
-                <h4 className="font-bold text-lg mb-2 text-center">Disponibilidad 24/7</h4>
+                <h4 className="font-bold text-lg mb-2 text-center">
+                  Disponibilidad 24/7
+                </h4>
                 <p className="text-white/80 text-sm sm:text-base text-center">
                   Servicio continuo todos los días del año.
                 </p>
@@ -896,7 +1292,8 @@ export default function App() {
               {...fadeInUpDelayed(0.2)}
               className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              La confianza de las familias que hemos atendido nos impulsa a seguir mejorando cada día.
+              La confianza de las familias que hemos atendido nos impulsa a
+              seguir mejorando cada día.
             </motion.p>
           </motion.div>
 
@@ -908,7 +1305,11 @@ export default function App() {
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           >
             {TESTIMONIOS.map((testimonio, index) => (
-              <TestimonialCard key={testimonio.nombre} testimonio={testimonio} index={index} />
+              <TestimonialCard
+                key={testimonio.nombre}
+                testimonio={testimonio}
+                index={index}
+              />
             ))}
           </motion.div>
         </div>
@@ -917,7 +1318,10 @@ export default function App() {
       {/* =====================================================
           CONTACTO MEJORADO
       ===================================================== */}
-      <section id="contacto" className="py-16 sm:py-20 lg:py-24 bg-gray-900 text-white">
+      <section
+        id="contacto"
+        className="py-16 sm:py-20 lg:py-24 bg-gray-900 text-white"
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0 }}
@@ -937,7 +1341,8 @@ export default function App() {
               {...fadeInUpDelayed(0.2)}
               className="text-lg sm:text-xl text-gray-300 mb-8 sm:mb-12 max-w-3xl mx-auto"
             >
-              ¿Necesitas ayuda inmediata? Estamos disponibles las 24 horas para atender tu emergencia.
+              ¿Necesitas ayuda inmediata? Estamos disponibles las 24 horas para
+              atender tu emergencia.
             </motion.p>
 
             <motion.div
@@ -963,9 +1368,10 @@ export default function App() {
                 </div>
 
                 <div className="font-bold text-lg mb-2">WhatsApp</div>
-                <div className="text-green-100 text-sm">Respuesta inmediata</div>
+                <div className="text-green-100 text-sm">
+                  Respuesta inmediata
+                </div>
               </a>
-
             </motion.div>
           </motion.div>
         </div>
@@ -990,7 +1396,9 @@ export default function App() {
                 />
                 <div>
                   <div className="font-bold text-xl sm:text-2xl">UCM</div>
-                  <div className="text-white/70 text-sm">Unidad Coronaria Móvil</div>
+                  <div className="text-white/70 text-sm">
+                    Unidad Coronaria Móvil
+                  </div>
                 </div>
               </div>
               <p className="text-white/70 text-sm sm:text-base">
@@ -1013,7 +1421,10 @@ export default function App() {
           </div>
 
           <div className="border-t border-white/20 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-white/60 text-xs sm:text-sm">
-            <p>© 2025 UCM — Unidad Coronaria Móvil. Todos los derechos reservados.</p>
+            <p>
+              © 2025 UCM — Unidad Coronaria Móvil. Todos los derechos
+              reservados.
+            </p>
           </div>
         </div>
       </footer>
