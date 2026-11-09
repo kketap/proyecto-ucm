@@ -21,6 +21,14 @@ import {
    TIPOS MEJORADOS
 =========================== */
 
+interface ContactFormData {
+  nombre: string;
+  telefono: string;
+  email: string;
+  motivo: string;
+  mensaje: string;
+}
+
 interface NavItem {
   id: string;
   label: string;
@@ -44,6 +52,14 @@ interface TestimonioItem {
   rol: string;
   texto: string;
   rating?: number;
+}
+
+interface ContactFormData {
+  nombre: string;
+  telefono: string;
+  email: string;
+  motivo: string;
+  mensaje: string;
 }
 
 /* ===========================
@@ -159,8 +175,8 @@ const TESTIMONIOS: TestimonioItem[] = [
 ];
 
 const CONTACT_INFO = {
-  whatsapp: "56991880520",
-  whatsappDisplay: "+56 9 9188 0520",
+  whatsapp: "56967201651",
+  whatsappDisplay: "+56 9 6720 1651",
 
   emergencia: "223914444",
   emergenciaDisplay: "22 391 4444",
@@ -391,6 +407,18 @@ export default function App() {
   const scrollTo = useSmoothScroll();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const [contactForm, setContactForm] = useState<ContactFormData>({
+    nombre: "",
+    telefono: "",
+    email: "",
+    motivo: "",
+    mensaje: "",
+  });
+
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactError, setContactError] = useState("");
+
   const navClasses = useMemo(
     () =>
       scrolled
@@ -406,6 +434,117 @@ export default function App() {
     },
     [scrollTo],
   );
+
+  const handleContactChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+
+    setContactForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (contactError) {
+      setContactError("");
+    }
+
+    if (contactSuccess) {
+      setContactSuccess(false);
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (contactLoading) return;
+
+    setContactError("");
+    setContactSuccess(false);
+
+    // ==========================================
+    // VALIDACIÓN
+    // ==========================================
+
+    const nombre = contactForm.nombre.trim();
+    const telefono = contactForm.telefono.trim();
+    const email = contactForm.email.trim();
+    const motivo = contactForm.motivo;
+    const mensaje = contactForm.mensaje.trim();
+
+    if (!nombre || !telefono || !email || !motivo) {
+      setContactError("Completa todos los campos obligatorios.");
+      return;
+    }
+
+    // ==========================================
+    // ENVÍO
+    // ==========================================
+
+    try {
+      setContactLoading(true);
+
+      const response = await fetch("/.netlify/functions/contact", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          nombre,
+          telefono,
+          email,
+          motivo,
+          mensaje,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data?.message || "No fue posible enviar la solicitud.");
+      }
+
+      // ==========================================
+      // ÉXITO
+      // ==========================================
+
+      setContactSuccess(true);
+
+      setContactForm({
+        nombre: "",
+        telefono: "",
+        email: "",
+        motivo: "",
+        mensaje: "",
+      });
+    } catch (error) {
+      console.error("[CONTACT] Error:", error);
+
+      setContactError(
+        error instanceof Error
+          ? error.message
+          : "No fue posible enviar la solicitud. Inténtalo nuevamente.",
+      );
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  const handleCotizarPlan = useCallback(() => {
+    setContactForm((prev) => ({
+      ...prev,
+      motivo: "full-rescue",
+    }));
+
+    setContactSuccess(false);
+    setContactError("");
+
+    scrollTo("contacto");
+  }, [scrollTo]);
 
   return (
     <div className="font-sans bg-white text-gray-800 scroll-smooth">
@@ -1029,7 +1168,7 @@ export default function App() {
 
                       <motion.button
                         type="button"
-                        onClick={() => handleNavClick("contacto")}
+                        onClick={handleCotizarPlan}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="
@@ -1316,62 +1455,369 @@ export default function App() {
       </section>
 
       {/* =====================================================
-          CONTACTO MEJORADO
-      ===================================================== */}
+    CONTACTO / COTIZACIÓN
+===================================================== */}
       <section
         id="contacto"
         className="py-16 sm:py-20 lg:py-24 bg-gray-900 text-white"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
+            className="text-center"
           >
-            <motion.h3
-              {...fadeInUp}
-              className="text-3xl sm:text-4xl md:text-5xl font-black mb-6"
-            >
-              Cotiza tu plan
-            </motion.h3>
+            {/* ENCABEZADO */}
+            <motion.div {...fadeInUp} className="mb-8">
+              <h3 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4">
+                Contacto
+              </h3>
 
-            <motion.p
+              <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+                ¿Quieres cotizar Full Rescue o necesitas información sobre
+                nuestros servicios? Déjanos tus datos y nos pondremos en
+                contacto contigo.
+              </p>
+            </motion.div>
+
+            {/* FORMULARIO */}
+            <motion.form
               {...fadeInUpDelayed(0.2)}
-              className="text-lg sm:text-xl text-gray-300 mb-8 sm:mb-12 max-w-3xl mx-auto"
+              onSubmit={handleContactSubmit}
+              className="
+          bg-white
+          text-gray-800
+          rounded-3xl
+          p-6
+          sm:p-8
+          shadow-2xl
+          text-left
+        "
             >
-              ¿Necesitas ayuda inmediata? Estamos disponibles las 24 horas para
-              atender tu emergencia.
-            </motion.p>
-
-            <motion.div
-              {...fadeInUpDelayed(0.4)}
-              className="grid place-items-center mb-8 sm:mb-12 max-w-2xl mx-auto"
-            >
-              <a
-                href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
-                className="bg-green-500 hover:bg-green-600 p-6 rounded-2xl text-center transition-all duration-300 group"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Contactar por WhatsApp para emergencias médicas"
-              >
-                <div className="mb-3 flex justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 32 32"
-                    fill="white"
-                    className="w-8 h-8"
+              <div className="grid sm:grid-cols-2 gap-5">
+                {/* NOMBRE */}
+                <div>
+                  <label
+                    htmlFor="nombre"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    <path d="M16 .5C7.44.5.5 7.44.5 16c0 2.8.75 5.53 2.18 7.95L.5 31.5l7.78-2.13A15.42 15.42 0 0 0 16 31.5c8.56 0 15.5-6.94 15.5-15.5S24.56.5 16 .5Zm0 28c-2.46 0-4.86-.66-6.95-1.91l-.5-.29-4.62 1.27 1.24-4.5-.33-.52A12.9 12.9 0 0 1 3 16c0-7.17 5.83-13 13-13s13 5.83 13 13-5.83 13-13 13Zm7.2-9.42c-.39-.2-2.3-1.14-2.65-1.27-.36-.13-.62-.2-.88.2-.26.39-1.01 1.27-1.24 1.52-.23.26-.46.29-.85.1-.39-.2-1.65-.6-3.14-1.91-1.16-1.03-1.94-2.3-2.17-2.69-.23-.39-.02-.6.17-.8.18-.18.39-.46.59-.69.2-.23.26-.39.39-.65.13-.26.07-.49-.03-.69-.1-.2-.88-2.12-1.21-2.9-.32-.77-.66-.67-.88-.68h-.75c-.26 0-.69.1-1.05.49-.36.39-1.38 1.34-1.38 3.26 0 1.92 1.41 3.77 1.61 4.03.2.26 2.77 4.23 6.72 5.93 3.95 1.69 3.95 1.13 4.66 1.07.72-.07 2.3-.94 2.63-1.85.33-.9.33-1.67.23-1.85-.1-.2-.36-.33-.75-.52Z" />
-                  </svg>
+                    Nombre *
+                  </label>
+
+                  <input
+                    id="nombre"
+                    name="nombre"
+                    minLength={2}
+                    maxLength={80}
+                    type="text"
+                    value={contactForm.nombre}
+                    onChange={handleContactChange}
+                    required
+                    autoComplete="name"
+                    placeholder="Tu nombre"
+                    className="
+                w-full
+                rounded-xl
+                border
+                border-gray-300
+                px-4
+                py-3
+                outline-none
+                transition
+                focus:border-ucmBlue
+                focus:ring-2
+                focus:ring-ucmBlue/20
+              "
+                  />
                 </div>
 
-                <div className="font-bold text-lg mb-2">WhatsApp</div>
-                <div className="text-green-100 text-sm">
-                  Respuesta inmediata
+                {/* TELÉFONO */}
+                <div>
+                  <label
+                    htmlFor="telefono"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Teléfono *
+                  </label>
+
+                  <input
+                    id="telefono"
+                    name="telefono"
+                    type="tel"
+                    maxLength={30}
+                    inputMode="tel"
+                    title="Ingresa un teléfono con formato chileno válido"
+                    value={contactForm.telefono}
+                    onChange={handleContactChange}
+                    required
+                    autoComplete="tel"
+                    placeholder="+56 9 1234 5678"
+                    className="
+                w-full
+                rounded-xl
+                border
+                border-gray-300
+                px-4
+                py-3
+                outline-none
+                transition
+                focus:border-ucmBlue
+                focus:ring-2
+                focus:ring-ucmBlue/20
+              "
+                  />
                 </div>
-              </a>
+              </div>
+
+              {/* CORREO */}
+              <div className="mt-5">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Correo electrónico *
+                </label>
+
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  maxLength={150}
+                  value={contactForm.email}
+                  onChange={handleContactChange}
+                  required
+                  autoComplete="email"
+                  placeholder="correo@ejemplo.cl"
+                  className="
+              w-full
+              rounded-xl
+              border
+              border-gray-300
+              px-4
+              py-3
+              outline-none
+              transition
+              focus:border-ucmBlue
+              focus:ring-2
+              focus:ring-ucmBlue/20
+            "
+                />
+              </div>
+
+              {/* MOTIVO */}
+              <div className="mt-5">
+                <label
+                  htmlFor="motivo"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  ¿En qué podemos ayudarte? *
+                </label>
+
+                <select
+                  id="motivo"
+                  name="motivo"
+                  value={contactForm.motivo}
+                  onChange={handleContactChange}
+                  required
+                  className="
+              w-full
+              rounded-xl
+              border
+              border-gray-300
+              bg-white
+              px-4
+              py-3
+              outline-none
+              transition
+              focus:border-ucmBlue
+              focus:ring-2
+              focus:ring-ucmBlue/20
+            "
+                >
+                  <option value="">Selecciona una opción</option>
+
+                  <option value="full-rescue">Cotizar Plan Full Rescue</option>
+
+                  <option value="servicios">Información sobre servicios</option>
+
+                  <option value="cobertura">Consultar cobertura</option>
+
+                  <option value="otro">Otra consulta</option>
+                </select>
+              </div>
+
+              {/* MENSAJE */}
+              <div className="mt-5">
+                <label
+                  htmlFor="mensaje"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Mensaje
+                  <span className="text-gray-400 font-normal ml-1">
+                    (opcional)
+                  </span>
+                </label>
+
+                <textarea
+                  id="mensaje"
+                  name="mensaje"
+                  maxLength={1000}
+                  rows={4}
+                  value={contactForm.mensaje}
+                  onChange={handleContactChange}
+                  placeholder="Escribe tu consulta..."
+                  className="
+              w-full
+              resize-none
+              rounded-xl
+              border
+              border-gray-300
+              px-4
+              py-3
+              outline-none
+              transition
+              focus:border-ucmBlue
+              focus:ring-2
+              focus:ring-ucmBlue/20
+            "
+                />
+
+                <p className="text-xs text-gray-400 text-right mt-1">
+                  {contactForm.mensaje.length}/1000 caracteres
+                </p>
+              </div>
+
+              {/* ERROR */}
+              {contactError && (
+                <div
+                  role="alert"
+                  className="
+              mt-5
+              rounded-xl
+              border
+              border-red-200
+              bg-red-50
+              px-4
+              py-3
+              text-sm
+              text-red-700
+            "
+                >
+                  {contactError}
+                </div>
+              )}
+
+              {/* ÉXITO */}
+              {contactSuccess && (
+                <div
+                  role="status"
+                  className="
+              mt-5
+              rounded-xl
+              border
+              border-green-200
+              bg-green-50
+              px-4
+              py-3
+              text-sm
+              text-green-700
+            "
+                >
+                  Tu solicitud fue enviada correctamente. Nos pondremos en
+                  contacto contigo.
+                </div>
+              )}
+
+              {/* BOTÓN */}
+              <motion.button
+                type="submit"
+                disabled={contactLoading}
+                whileHover={contactLoading ? undefined : { scale: 1.02 }}
+                whileTap={contactLoading ? undefined : { scale: 0.98 }}
+                className="
+            mt-6
+            w-full
+            bg-ucmOrange
+            hover:bg-orange-600
+            disabled:opacity-60
+            disabled:cursor-not-allowed
+            text-white
+            font-bold
+            px-6
+            py-4
+            rounded-xl
+            transition-colors
+            duration-300
+          "
+              >
+                {contactLoading
+                  ? "Enviando..."
+                  : contactForm.motivo === "full-rescue"
+                    ? "Solicitar cotización"
+                    : "Enviar consulta"}
+              </motion.button>
+
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Este formulario no está destinado a emergencias médicas.
+              </p>
+            </motion.form>
+
+            {/* CONTACTO INMEDIATO */}
+            <motion.div {...fadeInUpDelayed(0.4)} className="mt-8">
+              <p className="text-sm text-gray-400 mb-4">
+                ¿Necesitas atención inmediata?
+              </p>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <a
+                  href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              bg-green-500
+              hover:bg-green-600
+              px-5
+              py-3
+              rounded-xl
+              font-semibold
+              transition-colors
+            "
+                >
+                  WhatsApp
+                  <span className="text-sm font-normal">
+                    {CONTACT_INFO.whatsappDisplay}
+                  </span>
+                </a>
+
+                <a
+                  href={`tel:${CONTACT_INFO.emergencia}`}
+                  className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              bg-ucmOrange
+              hover:bg-orange-600
+              px-5
+              py-3
+              rounded-xl
+              font-semibold
+              transition-colors
+            "
+                >
+                  <PhoneCall className="w-4 h-4" />
+                  Emergencias
+                  <span className="text-sm font-normal">
+                    {CONTACT_INFO.emergenciaDisplay}
+                  </span>
+                </a>
+              </div>
             </motion.div>
           </motion.div>
         </div>
